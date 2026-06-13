@@ -9,7 +9,8 @@ import TechnomancerStats from './TechnomancerStats';
 import MainframeMap from './MainframeMap';
 import ArchitectAscensionModal from './ArchitectAscensionModal';
 import LevelUpToast from './LevelUpToast';
-import { validateSpell } from '../app/actions/validateSpell';
+// Server validation removed for web version
+
 import { getTechnomancerClass, getXPToNextLevel } from '../lib/levelLogic';
 
 interface LevelConfig {
@@ -322,29 +323,11 @@ export default function Grimoire() {
     const handleCompile = async () => {
         // 1. Client-Side Validation (Immediate feedback)
         const localResult = currentLevel.validator(code);
+        const { success: finalSuccess, message: finalMessage, statRewards, newClassType } = localResult;
 
-        // 2. Server-Side Validation (The "Ancient Laws")
-        // We run this to ensure security and robust checking, but we can assume localResult is a good preliminary check.
-        // For now, we'll combine them or prioritize the Server Action if it returns specific errors.
+        // 2. Server-Side Validation (REMOVED for static web version)
+        // Validation now happens purely in the browser using the local validator logic.
 
-        let finalSuccess = localResult.success;
-        let finalMessage = localResult.message;
-        let statRewards = localResult.statRewards;
-        let newClassType = localResult.newClassType;
-
-        try {
-            const serverResult = await validateSpell(`level-${currentLevel.id}`, code);
-            if (!serverResult.success) {
-                // If the server rejects it, it overrides the client (or adds to it)
-                finalSuccess = false;
-                finalMessage = serverResult.message;
-            } else if (serverResult.success && !localResult.success) {
-                // Rare case: Server says OK but Local says No. usually trust Local if it's more specific, or Server if it's authoritative.
-                // Let's stick to local result for the complex logic that the server might not have fully implemented yet.
-            }
-        } catch (e) {
-            console.error("Server validation failed:", e);
-        }
 
         if (finalSuccess) {
             setIsSuccess(true);
@@ -394,19 +377,9 @@ export default function Grimoire() {
 
             updateStats(updates);
 
-            try {
-                await fetch('/api/progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        questId: `level-${currentLevel.id}`,
-                        status: "COMPLETED",
-                        codeSubmission: code
-                    })
-                });
-            } catch (err) {
-                console.error("Failed to scribe progress to the Archive", err);
-            }
+            // Client-side only mode: API call removed.
+            // Progress is implicitly saved via updateStats which now uses LocalStorage.
+            console.log("Progress saved for:", currentLevel.title);
 
         } else {
             setIsSuccess(false);

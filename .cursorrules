@@ -1,0 +1,53 @@
+# COBOL Quest — Agent Directives
+
+## Identity
+You are working in **COBOL Quest**, an interactive Next.js browser game that teaches COBOL programming through gamified challenges with an integrated Monaco code editor.
+This project is part of the Gnomad Enterprise workspace at `/mnt/SteamDrive/ORGANIZATION/`.
+
+## Session Start Protocol (MANDATORY)
+1. Read `.agents/LOGS/SESSION_STATE.md` FIRST — this is your context from the last session.
+2. If stale or missing, read the latest `.agents/LOGS/SESSIONS/HANDOFF_*.md`.
+3. Run `git log -3 --oneline` to verify state matches reality.
+
+## Stack
+- **Framework**: Next.js 14.1.0 (App Router, strict mode)
+- **Language**: TypeScript ^5
+- **Key Dependencies**: @monaco-editor/react (code editor), framer-motion (animations), tailwindcss ^3.3 (styling)
+
+## Key Commands
+- Dev: `npm run dev`
+- Build: `npm run build`
+- Lint: `npm run lint`
+- Start (prod): `npm run start`
+
+## Conventions
+- Use the `@/*` path alias (maps to `./src/*`) for all imports.
+- Style with Tailwind CSS utility classes; use `clsx` + `tailwind-merge` for conditional class composition.
+- Animate page transitions and UI elements with framer-motion — keep variants colocated with components.
+- Strict TypeScript (`strict: true`) — no `any` types, no implicit returns.
+
+## Agent Infrastructure
+- `AGENTS.md` — Agent roster and responsibilities
+- `.agents/CHRONICLER.md` — Session memory protocol (follow trigger rules)
+- `.agents/PROJECT_SOP.md` — Full build/test/deploy procedures
+- `.agents/SKILLS/` — Evolving skill files (update when you learn something)
+- `.agents/DECISIONS/` — Log architectural decisions here
+
+## Cross-Project Resources
+- Swarm Core: `/mnt/SteamDrive/ORGANIZATION/02_ai_engineering/gnomad-swarm-core/`
+- RAG Search: `/mnt/SteamDrive/ORGANIZATION/02_ai_engineering/workspace-rag/`
+- VAULT (secrets): `/mnt/SteamDrive/ORGANIZATION/03_admin_finance/VAULT/`
+- Full workspace map: `/mnt/SteamDrive/ORGANIZATION/WORKSPACE.md`
+- **Skill Library**: `/mnt/SteamDrive/ORGANIZATION/SKILL_LIBRARY/` — 573 reusable skills, recipes, and patterns. See `SKILL_LIBRARY/README.md` for the catalog. Orchestrators can pull relevant skills into `.agents/SKILLS/` when beneficial.
+
+## Chronicler Protocol
+At checkpoints ("save session"), end of day ("done for the day"), or after git push:
+1. Update `.agents/LOGS/SESSION_STATE.md`
+2. Append to today's `.agents/LOGS/SESSIONS/HANDOFF_YYYY-MM-DD.md`
+See `.agents/CHRONICLER.md` for full trigger rules.
+
+## Self-Evolution
+When you discover a better pattern or solve a hard problem, capture it:
+1. Append to `.agents/SKILLS/LEARNING_LOG.md`
+2. Create/update a skill file in `.agents/SKILLS/`
+See `.agents/SKILLS/SELF_EVOLUTION.md` for the full protocol.

@@ -34,51 +34,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const ALLOWED_STATS = ['logic', 'memory', 'legacy', 'level'];
 
     useEffect(() => {
-        const fetchUser = async () => {
-            setIsLoading(true);
-            try {
-                const res = await fetch('/api/user');
-                if (res.ok) {
-                    const data = await res.json();
-                    setStats({
-                        logic: data.logic,
-                        memory: data.memory,
-                        legacy: data.xp, // Map DB 'xp' to App 'legacy'
-                        level: data.level,
-                        classType: data.classType
-                    });
-                }
-            } catch (error) {
-                console.error("Failed to fetch user stats", error);
-            } finally {
-                setIsLoading(false);
+        // Load from LocalStorage on mount
+        setIsLoading(true);
+        try {
+            const saved = localStorage.getItem('cobol-quest-save');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                setStats({
+                    ...defaultStats, // Ensure new fields are populated if missing
+                    ...parsed
+                });
+            } else {
+                // No save found, use defaults
+                setStats(defaultStats);
             }
-        };
-
-        fetchUser();
+        } catch (error) {
+            console.error("Failed to load save", error);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    const updateStats = async (updates: Partial<GameStats>) => {
-        // Optimistic UI update
-        setStats(prev => ({ ...prev, ...updates }));
-
-        try {
-            // Map App 'legacy' back to DB 'xp' if present
-            const payload: any = { ...updates };
-            if (payload.legacy !== undefined) {
-                payload.xp = payload.legacy;
-                delete payload.legacy;
+    const updateStats = (updates: Partial<GameStats>) => {
+        setStats(prev => {
+            const newState = { ...prev, ...updates };
+            // Save to LocalStorage immediately
+            try {
+                localStorage.setItem('cobol-quest-save', JSON.stringify(newState));
+            } catch (err) {
+                console.error("Failed to save progress", err);
             }
-
-            await fetch('/api/user', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-        } catch (error) {
-            console.error("Failed to save stats", error);
-            // In a real app, we might revert the optimistic update here
-        }
+            return newState;
+        });
     };
 
     return (
